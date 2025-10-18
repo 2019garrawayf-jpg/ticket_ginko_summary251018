@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garrawy F Report - 銀行サービスへの「声」分析レポート</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 1. 基本設定・リセット --- */
+        :root {
+            --base-color: #FFFFFF;
+            --main-color: #FFF157; /* 明るい黄色 */
+            --text-color: #333333;
+            --gray-light: #f4f4f4;
+            --gray-mid: #dddddd;
+
+            /* 識別しやすい配色パターン */
+            --color-1: #FFF157; /* 黄 */
+            --color-2: #FFC95C; /* オレンジ */
+            --color-3: #A0E7E5; /* ミント */
+            --color-4: #B4E1FF; /* 水色 */
+            --color-5: #FFA8D9; /* ピンク */
+            --color-gray: #E6E6E6; /* グレー */
+            
+            --font-heading: 'M PLUS Rounded 1c', sans-serif;
+            --font-body: 'Noto Sans JP', sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px; /* 基準フォントサイズ */
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--text-color);
+            background-color: var(--base-color);
+            line-height: 1.7;
+            
+            /* あしらい: 控えめなドットパターン */
+            background-image: radial-gradient(var(--gray-mid) 0.5px, transparent 0.5px);
+            background-size: 15px 15px;
+        }
+
+        /* --- 2. レイアウト・余白 --- */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2.5rem 1rem;
+            }
+            section {
+                margin-bottom: 3rem;
+            }
+        }
+
+        /* --- 3. タイポグラフィ・見出し --- */
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            position: relative;
+            display: inline-block; /* 下線のため */
+        }
+        
+        /* あしらい: 手書き風の波線 */
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10'%3E%3Cpath d='M0,5 Q10,2 20,5 T40,5 T60,5 T80,5 T100,5' stroke='%23FFF157' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+            background-size: 20px 10px;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            max-width: 720px; /* 読みやすい幅に */
+        }
+        
+        .lead {
+            font-size: 1.125rem;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.75rem; }
+            .lead { font-size: 1rem; }
+        }
+
+
+        /* --- 4. ヘッダー・フッター --- */
+        .header {
+            background-color: var(--base-color);
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        .header-logo {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+        /* ロゴの手書き風アイコン (電球) */
+        .header-logo::before {
+            content: '💡';
+            display: inline-block;
+            margin-right: 0.5rem;
+            font-size: 1.2em; /* アイコンサイズ調整 */
+            transform: rotate(-15deg);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--gray-light);
+            color: #777;
+            font-size: 0.875rem;
+        }
+        
+        /* --- 5. グラフ (属性・不便さ) --- */
+
+        /* 属性グラフ (円グラフ) コンテナ */
+        .profile-charts {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 2.5rem;
+        }
+
+        .chart-block {
+            flex: 1;
+            min-width: 280px;
+            text-align: center;
+        }
+        
+        h3 {
+            font-size: 1.25rem;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .pie-chart {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem auto;
+            position: relative;
+            /* 影で立体感を */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        /* 円グラフの配色 */
+        #pie-age {
+            background: conic-gradient(
+                var(--color-1) 0% 37.0%,     /* 20代 */
+                var(--color-2) 37.0% 69.1%, /* 30-40代 */
+                var(--color-3) 69.1% 94.1%, /* 10代 */
+                var(--color-4) 94.1% 98.4%, /* 50代 */
+                var(--color-5) 98.4% 99.1%, /* 60以上 */
+                var(--color-gray) 99.1% 100% /* 未回答 */
+            );
+        }
+        #pie-gender {
+            background: conic-gradient(
+                var(--color-1) 0% 70.7%,     /* 男性 */
+                var(--color-3) 70.7% 99.3%, /* 女性 */
+                var(--color-gray) 99.3% 100% /* 他/未回答 */
+            );
+        }
+        #pie-location {
+            background: conic-gradient(
+                var(--color-1) 0% 75.4%,     /* 福岡市内 */
+                var(--color-2) 75.4% 90.1%, /* 市外で県内 */
+                var(--color-3) 90.1% 94.2%, /* 首都圏 */
+                var(--color-4) 94.2% 96.7%, /* そのた地方 */
+                var(--color-gray) 96.7% 100% /* 他/未回答 */
+            );
+        }
+
+        /* 凡例 */
+        .legend {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            max-width: 250px;
+            margin: 0 auto;
+        }
+        .legend li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .legend span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            margin-right: 0.75rem;
+        }
+        .legend .val {
+            margin-left: auto;
+            font-weight: 700;
+        }
+
+
+        /* 不便さグラフ (棒グラフ) コンテナ */
+        .bar-chart {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end; /* 下揃え */
+            height: 300px;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background-color: var(--gray-light);
+            gap: 1rem;
+        }
+
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* ★修正: グラフバグ修正 */
+        .bar {
+            width: 70%;
+            max-width: 60px;
+            background-color: var(--main-color);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            
+            /* ★修正: CSS変数(--height)から高さを取得 */
+            height: var(--height); 
+        }
+        
+        /* グラフのホバーインタラクション */
+        .bar:hover {
+            background-color: #FDD835; /* 少し濃い黄色 */
+            transform: scale(1.03);
+        }
+        .bar .percent {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 700;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .bar-item:hover .percent {
+            opacity: 1;
+        }
+        
+        .bar-label {
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        
+        @media (max-width: 768px) {
+            .bar-chart {
+                /* スマホ用にグラフの高さを調整 */
+                height: 250px; 
+                padding: 1rem;
+                gap: 0.5rem;
+            }
+            .bar-label {
+                font-size: 0.75rem;
+            }
+            /* ★追加: スマホ用の高さを再計算 */
+            /* 250px * 23.3% = 58px */
+            .bar-chart .bar-item:nth-child(1) .bar { --height: 58px; } 
+            /* 250px * 19.0% = 48px */
+            .bar-chart .bar-item:nth-child(2) .bar { --height: 48px; } 
+            /* 250px * 17.9% = 45px */
+            .bar-chart .bar-item:nth-child(3) .bar { --height: 45px; } 
+            /* 250px * 14.4% = 36px */
+            .bar-chart .bar-item:nth-child(4) .bar { --height: 36px; }
+            /* 250px * 14.3% = 36px */
+            .bar-chart .bar-item:nth-child(5) .bar { --height: 36px; } 
+            /* 250px * 11.2% = 28px */
+            .bar-chart .bar-item:nth-child(6) .bar { --height: 28px; } 
+        }
+
+
+        /* --- 6. 解決策 (カード) --- */
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .solution-card {
+            background-color: var(--base-color);
+            border: 1px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        /* カードのホバーインタラクション */
+        .solution-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+        }
+        
+        .card-category {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            background-color: var(--main-color);
+            border-radius: 99px;
+            display: inline-block;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+        /* あしらい: 手書き風の引用符 */
+        .card-text::before {
+            content: '「';
+            margin-right: 0.25em;
+            font-weight: 900;
+            color: var(--main-color);
+        }
+        .card-text::after {
+            content: '」';
+            margin-left: 0.25em;
+            font-weight: 900;
+            color: var(--main-color);
+        }
+
+
+        /* --- 7. 相関分析 (タブ) --- */
+        .tab-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--gray-light);
+        }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            background-color: transparent;
+            border: 0;
+            font-family: var(--font-heading);
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #777;
+            position: relative;
+            bottom: -2px; /* ボーダーと重ねる */
+            transition: color 0.3s;
+        }
+        .tab-button.active {
+            color: var(--text-color);
+            border-bottom: 2px solid var(--main-color);
+        }
+        .tab-button:hover:not(.active) {
+            color: var(--text-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 相関分析のリスト */
+        .correlation-list {
+            list-style: none;
+            padding: 0;
+        }
+        .correlation-list li {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1rem 0;
+            border-bottom: 1px dashed var(--gray-mid);
+        }
+        .correlation-list li:last-child {
+            border-bottom: none;
+        }
+        .corr-label {
+            font-family: var(--font-heading);
+            font-size: 1.125rem;
+            font-weight: 700;
+            min-width: 100px;
+        }
+        .corr-desc {
+            font-size: 1rem;
+        }
+        .corr-desc strong {
+            color: var(--text-color);
+            background: linear-gradient(transparent 60%, var(--main-color) 60%); /* マーカー風 */
+            padding: 0 0.1em;
+        }
+        
+        @media (max-width: 768px) {
+            .correlation-list li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+
+        /* --- 8. アニメーション (ふわりと表示) --- */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* アニメーションの遅延（オプション） */
+        .chart-block, .bar-item, .solution-card {
+            transition-delay: calc(var(--delay, 0) * 100ms);
+        }
+        
+        /* ★★★ 9. ジンテーゼセクション (新規追加) ★★★ */
+        .synthesis-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* 1列 */
+            gap: 2rem;
+        }
+        
+        .synthesis-card {
+            background-color: var(--base-color);
+            border: 1px solid var(--gray-light);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            overflow: hidden; /* 角丸のため */
+        }
+        
+        .thesis-group {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: var(--gray-light);
+        }
+        
+        .thesis-item {
+            flex: 1;
+            min-width: 250px;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .thesis-item p {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        /* T (テーゼ) と A (アンチテーゼ) のラベル */
+        .thesis-label {
+            display: block;
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        /* あしらい: 手書き風の引用符 */
+        .thesis-item p::before {
+            content: '「';
+            margin-right: 0.25em;
+            font-weight: 900;
+        }
+        .thesis-item p::after {
+            content: '」';
+            margin-left: 0.25em;
+            font-weight: 900;
+        }
+        
+        /* テーゼのスタイル */
+        .thesis.thesis-item p::before,
+        .thesis.thesis-item p::after {
+            color: var(--color-2); /* オレンジ */
+        }
+        
+        /* アンチテーゼのスタイル */
+        .antithesis.thesis-item {
+            background-color: #fcfcfc;
+        }
+        .antithesis.thesis-item p::before,
+        .antithesis.thesis-item p::after {
+            color: var(--color-3); /* ミント */
+        }
+        
+        /* ジンテーゼ (解決策) のスタイル */
+        .synthesis-item {
+            padding: 1.5rem;
+            position: relative;
+            background-color: var(--base-color);
+        }
+        
+        .synthesis-label {
+            display: inline-block;
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-color);
+            background-color: var(--main-color); /* メインの黄色 */
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            margin-bottom: 1rem;
+        }
+        
+        .synthesis-title {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .synthesis-desc {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="#" class="header-logo">Garrawy F Report</a>
+    </header>
+
+    <main>
+
+        <section class="container fade-in" style="--delay: 0;">
+            <h1>銀行サービスへの「声」<br>分析レポート</h1>
+            <p class="lead">
+                Garrawy Fの利用者の皆様から寄せられた、銀行サービスへの「不便さ」と「解決策」。<br>
+                836件の貴重な声を分析し、可視化しました。
+            </p>
+        </section>
+
+        <section id="profile" class="container">
+            <h2 class="fade-in" style="--delay: 1;">回答者の属性</h2>
+            <p class="fade-in" style="--delay: 2;">
+                今回の分析は、コワーキングスペースを利用する<strong>836名</strong>のユニークな声に基づいています。<br>
+                まずは、回答してくれた皆さんのプロフィールを見てみましょう。
+            </p>
+
+            <div class="profile-charts">
+                <div class="chart-block fade-in" style="--delay: 3;">
+                    <h3>年代</h3>
+                    <div class="pie-chart" id="pie-age" role="img" aria-label="年代別円グラフ"></div>
+                    <ul class="legend">
+                        <li><span style="background-color: var(--color-1);"></span>20代 <span class="val">37.0%</span></li>
+                        <li><span style="background-color: var(--color-2);"></span>30代＆40代 <span class="val">32.1%</span></li>
+                        <li><span style="background-color: var(--color-3);"></span>10代 <span class="val">25.0%</span></li>
+                        <li><span style="background-color: var(--color-4);"></span>50代 <span class="val">4.3%</span></li>
+                        <li><span style="background-color: var(--color-5);"></span>60以上 <span class="val">0.7%</span></li>
+                        <li><span style="background-color: var(--color-gray);"></span>他/未回答 <span class="val">1.0%</span></li>
+                    </ul>
+                </div>
+                <div class="chart-block fade-in" style="--delay: 4;">
+                    <h3>性別</h3>
+                    <div class="pie-chart" id="pie-gender" role="img" aria-label="性別円グラフ"></div>
+                    <ul class="legend">
+                        <li><span style="background-color: var(--color-1);"></span>男性 <span class="val">70.7%</span></li>
+                        <li><span style="background-color: var(--color-3);"></span>女性 <span class="val">28.6%</span></li>
+                        <li><span style="background-color: var(--color-gray);"></span>他/未回答 <span class="val">0.7%</span></li>
+                    </ul>
+                </div>
+                <div class="chart-block fade-in" style="--delay: 5;">
+                    <h3>居住地</h3>
+                    <div class="pie-chart" id="pie-location" role="img" aria-label="居住地別円グラフ"></div>
+                    <ul class="legend">
+                        <li><span style="background-color: var(--color-1);"></span>福岡市内 <span class="val">75.4%</span></li>
+                        <li><span style="background-color: var(--color-2);"></span>市外で県内 <span class="val">14.7%</span></li>
+                        <li><span style="background-color: var(--color-3);"></span>首都圏 <span class="val">4.1%</span></li>
+                        <li><span style="background-color: var(--color-4);"></span>そのた地方 <span class="val">2.5%</span></li>
+                        <li><span style="background-color: var(--color-gray);"></span>他/未回答 <span class="val">3.3%</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="inconvenience" class="container">
+            <h2 class="fade-in">「不便さ」のカテゴリ別割合</h2>
+            <p class="fade-in" style="--delay: 1;">
+                銀行サービスに対する「不便さ」は、一つの理由だけではありませんでした。<br>
+                手数料やアプリ、窓口など、デジタルとリアルの両方で様々な声が寄せられています。
+            </p>
+            
+            <div class="bar-chart fade-in" style="--delay: 2;">
+                <div class="bar-item" style="--delay: 3;">
+                    <div class="bar" style="--height: 70px;"> 
+                        <span class="percent">23.3%</span>
+                    </div>
+                    <div class="bar-label">ATM・手数料</div>
+                </div>
+                <div class="bar-item" style="--delay: 4;">
+                    <div class="bar" style="--height: 57px;">
+                        <span class="percent">19.0%</span>
+                    </div>
+                    <div class="bar-label">アプリ・オンライン</div>
+                </div>
+                <div class="bar-item" style="--delay: 5;">
+                    <div class="bar" style="--height: 54px;">
+                        <span class="percent">17.9%</span>
+                    </div>
+                    <div class="bar-label">窓口・営業時間</div>
+                </div>
+                <div class="bar-item" style="--delay: 6;">
+                    <div class="bar" style="--height: 43px;">
+                        <span class="percent">14.4%</span>
+                    </div>
+                    <div class="bar-label">店舗・立地</div>
+                </div>
+                <div class="bar-item" style="--delay: 7;">
+                    <div class="bar" style="--height: 43px;">
+                        <span class="percent">14.3%</span>
+                    </div>
+                    <div class="bar-label">手続き・システム</div>
+                </div>
+                <div class="bar-item" style="--delay: 8;">
+                    <div class="bar" style="--height: 34px;">
+                        <span class="percent">11.2%</span>
+                    </div>
+                    <div class="bar-label">その他</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="container">
+            <h2 class="fade-in">カテゴリ別「解決策」のアイデア例</h2>
+            <p class="fade-in" style="--delay: 1;">
+                皆さんの声は、不満だけにとどまりません。そこには、現状を打破する創造的な「解決策」のヒントが隠されていました。
+            </p>
+            
+            <div class="solution-grid">
+                <div class="solution-card fade-in" style="--delay: 2;">
+                    <span class="card-category">手続き・システム</span>
+                    <p class="card-text">ワイルドカードみたいな金融機関が欲しい</p>
+                </div>
+                <div class="solution-card fade-in" style="--delay: 3;">
+                    <span class="card-category">ATM・手数料</span>
+                    <p class="card-text">月に5回無料などの特典を付与</p>
+                </div>
+                <div class="solution-card fade-in" style="--delay: 4;">
+                    <span class="card-category">ATM・手数料</span>
+                    <p class="card-text">電子マネーを統合するシステム</p>
+                </div>
+                <div class="solution-card fade-in" style="--delay: 5;">
+                    <span class="card-category">窓口・営業時間</span>
+                    <p class="card-text">AIやネットで人以外の対応を</p>
+                </div>
+                <div class="solution-card fade-in" style="--delay: 6;">
+                    <span class="card-category">手続き・システム</span>
+                    <p class="card-text">規格を統一してコストも下げるべき</p>
+                </div>
+                <div class="solution-card fade-in" style="--delay: 7;">
+                    <span class="card-category">アプリ・オンライン</span>
+                    <p class="card-text">（逆に）直接対応できる窓口の再開</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="correlation" class="container">
+            <h2 class="fade-in">属性と「不便さ」の相関分析</h2>
+            <p class="fade-in" style="--delay: 1;">
+                感じる不便さは、年代や性別、住む場所によっても変化するようです。<br>
+                属性ごとの「声のちがい」に耳を傾けてみましょう。
+            </p>
+
+            <nav class="tab-nav fade-in" style="--delay: 2;">
+                <button class="tab-button active" data-target="#tab-age">年代別</button>
+                <button class="tab-button" data-target="#tab-gender">性別</button>
+                <button class="tab-button" data-target="#tab-location">居住地別</button>
+            </nav>
+
+            <div id="tab-age" class="tab-content active fade-in" style="--delay: 3;">
+                <h3>年代別: 求めるものが違う</h3>
+                <ul class="correlation-list">
+                    <li>
+                        <span class="corr-label">10代</span>
+                        <p class="corr-desc"><strong>「店舗・立地」</strong>への不満が最多。物理的なアクセスの良さを重視。</p>
+                    </li>
+                    <li>
+                        <span class="corr-label">20代</span>
+                        <p class="corr-desc"><strong>「ATM・手数料」</strong>がトップ。コストに最も敏感な世代。</p>
+                    </li>
+                    <li>
+                        <span class="corr-label">50代</span>
+                        <p class="corr-desc"><strong>「窓口・営業時間」</strong>が突出。対面サービスのニーズが顕著。</p>
+                    </li>
+                    <li>
+                        <span class="corr-label">60代以上</span>
+                        <p class="corr-desc"><strong>「アプリ・オンライン」</strong>が半数。デジタル体験へのギャップが浮き彫りに。</p>
+                    </li>
+                </ul>
+            </div>
+            
+            <div id="tab-gender" class="tab-content fade-in">
+                <h3>性別: 感じ方の小さな差</h3>
+                <ul class="correlation-list">
+                    <li>
+                        <span class="corr-label">女性</span>
+                        <p class="corr-desc">男性に比べ、<strong>「アプリ・オンライン」</strong>や<strong>「窓口・営業時間」</strong>への不満をやや強く感じる傾向。</p>
+                    </li>
+                    <li>
+                        <span class="corr-label">男性</span>
+                        <p class="corr-desc">不満は全体的に分散しているが、「手続き・システム」や「その他」の割合が女性より高い。</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="tab-location" class="tab-content fade-in">
+                <h3>居住地別: 都市部とそれ以外</h3>
+                <ul class="correlation-list">
+                    <li>
+                        <span class="corr-label">首都圏</span>
+                        <p class="corr-desc"><strong>「アプリ・オンライン」</strong>への不満が$34\%$と突出。都市部ならではのデジタル体験への高い要求水準がうかがえる。</p>
+                    </li>
+                    <li>
+                        <span class="corr-label">福岡市内</span>
+                        <p class="corr-desc">全体傾向と近いが、「窓口・営業時間」への不満がやや多め。</p>
+                    </li>
+                    <li>
+                        <span class="corr-label">市外で県内</span>
+                        <p class="corr-desc">「アプリ・オンライン」と「ATM・手数料」への不満が強い傾向。</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="conclusion" class="container">
+            <h2 class="fade-in">分析のまとめと考察</h2>
+            <p class="fade-in" style="--delay: 1;">
+                今回の分析で、銀行サービスへの不便さが「コスト」「デジタル」「対面」「物理アクセス」と、多様な側面に分散していることが分かりました。
+            </p>
+            <p class="fade-in" style="--delay: 2;">
+                特に、<strong>10代は「立地」、20代は「手数料」、50代は「窓口」、60代以上や首都圏居住者は「アプリ」</strong>と、属性によって求めるものが明確に異なります。
+            </p>
+            <p class="fade-in" style="--delay: 3;">
+                これは、画一的なサービス改善では、すべての人の声に応えるのが難しいことを示しています。
+                Garrawy Fに集まる私たちのように、多様な視点を持ち寄り、セグメントに合わせた柔軟なアイデアを生み出し続けることが、これからのサービスには不可欠です。
+                皆さんの声が、次の「当たり前」を作るヒントになりました。
+            </p>
+        </section>
+
+
+        <section id="synthesis" class="container">
+            <h2 class="fade-in">対立する声から見つける「次のアイデア」</h2>
+            <p class="fade-in" style="--delay: 1;">
+                皆さんの解決策の中には、一見すると「矛盾」するようなアイデア（テーゼとアンチテーゼ）も存在しました。しかし、その対立こそが、新しいサービスを生み出す「ジンテーゼ（統合案）」の源泉です。
+            </p>
+            
+            <div class="synthesis-grid">
+                
+                <div class="synthesis-card fade-in" style="--delay: 2;">
+                    <div class="thesis-group">
+                        <div class="thesis-item thesis">
+                            <span class="thesis-label">T (テーゼ)</span>
+                            <p>「窓口など対面で相談したい」</p>
+                        </div>
+                        <div class="thesis-item antithesis">
+                            <span class="thesis-label anti">A (アンチテーゼ)</span>
+                            <p>「AIやネットで完結させたい」</p>
+                        </div>
+                    </div>
+                    <div class="synthesis-item">
+                        <span class="synthesis-label">S (ジンテーゼ)</span>
+                        <p class="synthesis-title">ハイブリッド型コンシェルジュ</p>
+                        <p class="synthesis-desc">複雑な相談はビデオ通話ブースで「対面の温かみ」を、簡単な手続きは「AIの効率性」を。両者の良い所取りを実現する。</p>
+                    </div>
+                </div>
+
+                <div class="synthesis-card fade-in" style="--delay: 3;">
+                    <div class="thesis-group">
+                        <div class="thesis-item thesis">
+                            <span class="thesis-label">T (テーゼ)</span>
+                            <p>「セキュリティが不安だ」</p>
+                        </div>
+                        <div class="thesis-item antithesis">
+                            <span class="thesis-label anti">A (アンチテーゼ)</span>
+                            <p>「ログインやパスワード入力が面倒」</p>
+                        </div>
+                    </div>
+                    <div class="synthesis-item">
+                        <span class="synthesis-label">S (ジンテーゼ)</span>
+                        <p class="synthesis-title">アダプティブ（適応型）認証</p>
+                        <p class="synthesis-desc">少額送金は「顔認証のみ」でパス。高額送金や不審なアクセス時のみ「追加認証」を要求。快適さと安全性を両立する。</p>
+                    </div>
+                </div>
+
+                <div class="synthesis-card fade-in" style="--delay: 4;">
+                    <div class="thesis-group">
+                        <div class="thesis-item thesis">
+                            <span class="thesis-label">T (テーゼ)</span>
+                            <p>「ATM手数料を無料にしてほしい」</p>
+                        </div>
+                        <div class="thesis-item antithesis">
+                            <span class="thesis-label anti">A (アンチテーゼ)</span>
+                            <p>「手数料よりポイントや特典を充実させて」</p>
+                        </div>
+                    </div>
+                    <div class="synthesis-item">
+                        <span class="synthesis-label">S (ジンテーゼ)</span>
+                        <p class="synthesis-title">ゲーミフィケーション型の手数料</p>
+                        <p class="synthesis-desc">アプリ利用や金融知識クイズなど、銀行が推奨する行動でポイントが貯まり、手数料が割引・無料に。コスト意識と楽しさを両立する。</p>
+                    </div>
+                </div>
+
+                <div class="synthesis-card fade-in" style="--delay: 5;">
+                    <div class="thesis-group">
+                        <div class="thesis-item thesis">
+                            <span class="thesis-label">T (テーゼ)</span>
+                            <p>「口座を一つに統一したい」</p>
+                        </div>
+                        <div class="thesis-item antithesis">
+                            <span class="thesis-label anti">A (アンチテーゼ)</span>
+                            <p>「〇〇銀行独自のアプリが便利」</p>
+                        </div>
+                    </div>
+                    <div class="synthesis-item">
+                        <span class="synthesis-label">S (ジンテーゼ)</span>
+                        <p class="synthesis-title">金融APIアグリゲーター（統合ダッシュボード）</p>
+                        <p class="synthesis-desc">メインアプリで全口座を一括管理。各銀行は裏側で独自サービスを競い、ユーザーは最適な機能を選択できる。管理の手間と銀行の独自性を両立する。</p>
+                    </div>
+                </div>
+
+                <div class="synthesis-card fade-in" style="--delay: 6;">
+                    <div class="thesis-group">
+                        <div class="thesis-item thesis">
+                            <span class="thesis-label">T (テーゼ)</span>
+                            <p>「地方や地元のATM・支店が少ない」</p>
+                        </div>
+                        <div class="thesis-item antithesis">
+                            <span class="thesis-label anti">A (アンチテーゼ)</span>
+                            <p>「店舗を減らして手数料を安くして」</p>
+                        </div>
+                    </div>
+                    <div class="synthesis-item">
+                        <span class="synthesis-label">S (ジンテーゼ)</span>
+                        <p class="synthesis-title">モビリティ・バンキング（移動銀行）</p>
+                        <p class="synthesis-desc">固定店舗を減らす代わりに、銀行機能を搭載した専用車両が定期的に巡回。物理アクセスとコスト削減を両立する。</p>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Garrawy F Report. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 1. スクロールアニメーション (Fade In) ---
+            const faders = document.querySelectorAll('.fade-in');
+            
+            // IntersectionObserverが利用できないブラウザ（IEなど）のためのフォールバック
+            if ('IntersectionObserver' in window) {
+                const appearOptions = {
+                    threshold: 0.1, // 10%見えたら
+                    rootMargin: "0px 0px -50px 0px" // 少し早めに反応
+                };
+
+                const appearOnScroll = new IntersectionObserver(function(entries, appearOnScroll) {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting) {
+                            return;
+                        } else {
+                            entry.target.classList.add('visible');
+                            appearOnScroll.unobserve(entry.target); // 一度表示したら監視終了
+                        }
+                    });
+                }, appearOptions);
+
+                faders.forEach(fader => {
+                    appearOnScroll.observe(fader);
+                });
+
+            } else {
+                // フォールバック: JS非対応ブラウザではアニメーションなしで表示
+                faders.forEach(fader => {
+                    fader.classList.add('visible');
+                });
+            }
+
+
+            // --- 2. タブ切り替え機能 ---
+            const tabs = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    // 1. すべてのボタンのアクティブを解除
+                    tabs.forEach(item => item.classList.remove('active'));
+                    // 2. クリックされたボタンをアクティブに
+                    e.currentTarget.classList.add('active');
+                    
+                    // 3. すべてのコンテンツを非表示に
+                    contents.forEach(content => content.classList.remove('active'));
+                    
+                    // 4. 対応するコンテンツを表示
+                    // data-target属性 (例: "#tab-age") を取得
+                    const targetSelector = e.currentTarget.dataset.target;
+                    const targetContent = document.querySelector(targetSelector);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+
+        });
+    </script>
+
+</body>
+</html>
